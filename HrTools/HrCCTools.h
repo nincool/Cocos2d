@@ -14,6 +14,10 @@ T* HrCreate()
 	}
 	else
 	{
+		if (pT == nullptr)
+			CCASSERT(nullptr, "FATAL: Not enough memory");
+		else
+			CCASSERT(nullptr, "FATAL: Init Error!");
 		CC_SAFE_DELETE( pT );
 	}
 
@@ -31,12 +35,12 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	inline static bool IsWinPlatform()
 	{
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-		return false;
-#endif
 #if ( CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 )
 		return true;
+#else
+		return false;
 #endif
+
 	}
 
 	inline static bool IsAndroidPlatform()

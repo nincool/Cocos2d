@@ -8,14 +8,14 @@ USING_NS_CC;
 
 namespace HrCCBase
 {
-	class CHrBaseScene : public cocos2d::Scene
+	class CHrBasicScene : public cocos2d::Scene
 	{
 	public:
-		CHrBaseScene();
-		virtual ~CHrBaseScene();
+		CHrBasicScene();
+		virtual ~CHrBasicScene();
 
 	public:
-		virtual bool HrInit() = 0;
+		virtual bool init() override;
 	};
 }
 

@@ -8,15 +8,14 @@ USING_NS_CC;
 
 namespace HrCCBase
 {
-	class CHrBaseLayer : public cocos2d::Layer
+	class CHrBasicLayer : public cocos2d::Layer
 	{
 	protected:
-		CHrBaseLayer();
-		virtual ~CHrBaseLayer();
+		CHrBasicLayer();
+		virtual ~CHrBasicLayer();
 
 	public:
-		//先无视原来的init
-		virtual bool HrInit() = 0;
+		virtual bool init() override;
 
 		//inher
 		virtual bool onTouchBegan( Touch *touch, Event *unused_event ) override;
