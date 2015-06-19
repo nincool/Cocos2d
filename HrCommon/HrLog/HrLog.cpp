@@ -10,7 +10,6 @@ USING_NS_CC;
 
 CHrLog::CHrLog(void)
 {
-	memset(&m_stLogConf, 0, sizeof(HrLogConf));
 	m_stLogConf.nFileFlag = _HLOG_CONSOLE | _HLOG_FILE;					//写入控制台 写入文件
 	m_stLogConf.nFormatFlag = _HLOG_DATE | _HLOG_TIME | _HLOG_LEVEL | _HLOG_MODULE;	//日期和模块
 	m_stLogConf.nLevelFlag = _HERROR;
@@ -27,13 +26,14 @@ CHrLog& CHrLog::Instance()
 
 void CHrLog::LogInit( HrLogConf& stLogConf )
 {
-	memcpy(&m_stLogConf, &stLogConf, sizeof(m_stLogConf));
-	if (m_stLogConf.nFileFlag & _HLOG_CONSOLE)
-	{
-	}
+	m_stLogConf.nFileFlag = stLogConf.nFileFlag;
+	m_stLogConf.nFormatFlag = stLogConf.nFormatFlag;
+	m_stLogConf.nLevelFlag = stLogConf.nLevelFlag;
+	m_stLogConf.strLogFileName = stLogConf.strLogFileName;
+
 	m_strLogFileName = stLogConf.strLogFileName;
-	string strContent = StringUtils::format("Log Start! Log File:[%s]", stLogConf.strLogFileName.c_str());
-	Log(_HERROR, "HLOG", strContent.c_str());
+	string strContent = StringUtils::format("--------------Log Start! Log File:[%s]------------", stLogConf.strLogFileName.c_str());
+	Log(_HERROR, "HRLOG", strContent.c_str());
 }
 
 void CHrLog::GetFileName()
@@ -53,6 +53,7 @@ void CHrLog::GetFileName()
 	string strWriteablePath = "E:\\Workspace\\HrProjects\\Log\\";
 #endif
 	m_strLogFullPath = strWriteablePath + m_strLogFileNameWithDate;
+	CCLOG("%s", m_strLogFullPath.c_str());
 }
 
 
@@ -68,10 +69,12 @@ void CHrLog::MakeDateStarmp(char* pDateBuf, int nBufLen, char cSpace)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 	
-	struct cc_timeval now;   
-	CCTime::gettimeofdayCocos2d(&now, NULL);   
+	struct timeval now;   
+	gettimeofday(&now, NULL);   
+	
 	struct tm *tm;  
 	tm = localtime(&now.tv_sec);  
+	
 	int year = tm->tm_year + 1900;  
 	int month = tm->tm_mon + 1;  
 	int day = tm->tm_mday;  
@@ -112,10 +115,12 @@ void CHrLog::MakeTimeStarmp( char* pTimeBuf, int nBufLen )
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
-	struct cc_timeval now;   
-	CCTime::gettimeofdayCocos2d(&now, NULL);   
+	struct timeval now;   
+	gettimeofday(&now, NULL);   
+
 	struct tm *tm;  
 	tm = localtime(&now.tv_sec);  
+
 	int year = tm->tm_year + 1900;  
 	int month = tm->tm_mon + 1;  
 	int day = tm->tm_mday;  
@@ -150,16 +155,18 @@ void CHrLog::MakeFullTimeStarmp(char* pTimeBuf, int nBufLen)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
-	struct cc_timeval now;
-	CCTime::gettimeofdayCocos2d(&now, NULL);
-	struct tm *tm;
-	tm = localtime(&now.tv_sec);
-	int year = tm->tm_year + 1900;
-	int month = tm->tm_mon + 1;
-	int day = tm->tm_mday;
-	int hour = tm->tm_hour;
-	int minute = tm->tm_min;
-	int second = tm->tm_sec;
+	struct timeval now;   
+	gettimeofday(&now, NULL);   
+
+	struct tm *tm;  
+	tm = localtime(&now.tv_sec);  
+
+	int year = tm->tm_year + 1900;  
+	int month = tm->tm_mon + 1;  
+	int day = tm->tm_mday;  
+	int hour=tm->tm_hour;  
+	int minute=tm->tm_min;  
+	int second=tm->tm_sec;  
 	long millSecond = now.tv_sec * 1000 + now.tv_usec / 1000;
 
 	sprintf(pTimeBuf, "[%d/%02d/%02d %d:%02d:%02d]", year, month, day, hour, minute, second);
@@ -225,9 +232,9 @@ void CHrLog::Log( unsigned int nLevel, char* pszModule, const char* pszFormatCon
 				break;
 			}
 		}
-		std::strcat(szLogBuff, szTimeLavel);
+		strcat(szLogBuff, szTimeLavel);
 	}
-	
+
 	//构建模块等级
 	unsigned int ret  = m_stLogConf.nFormatFlag & _HLOG_LEVEL;
 	if (m_stLogConf.nFormatFlag & _HLOG_LEVEL)
@@ -235,7 +242,7 @@ void CHrLog::Log( unsigned int nLevel, char* pszModule, const char* pszFormatCon
 		char szLevelLabel[HR_LABELBUFF_LEN];
 		memset(szLevelLabel, 0, sizeof(szLevelLabel));
 		MakeLevelLabel(nLevel, szLevelLabel, HR_LABELBUFF_LEN);
-		std::strcat(szLogBuff, szLevelLabel);
+		strcat(szLogBuff, szLevelLabel);
 	}
 
 	//构建模块自定义标签
@@ -245,12 +252,12 @@ void CHrLog::Log( unsigned int nLevel, char* pszModule, const char* pszFormatCon
 		memset(szModuleLabel, 0, sizeof(szModuleLabel));
 		szModuleLabel[0] = '[';
 		memcpy(szModuleLabel+1, pszModule, HR_LABELBUFF_LEN-1);
-		std::strcat(szLogBuff, szModuleLabel);
-		std::strcat(szLogBuff, "] ");
+		strcat(szLogBuff, szModuleLabel);
+		strcat(szLogBuff, "] ");
 	}
 
-	std::strcat(szLogBuff, pszFormatContent);
-	std::strcat(szLogBuff, "\n");
+	strcat(szLogBuff, pszFormatContent);
+	strcat(szLogBuff, "\n");
 
 	GetFileName();
 

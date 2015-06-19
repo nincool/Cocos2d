@@ -15,5 +15,5 @@ bool CHrBasicScene::init()
 {
 	Scene::init();
 
-
+	return true;
 }

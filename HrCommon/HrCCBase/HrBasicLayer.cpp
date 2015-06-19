@@ -14,6 +14,8 @@ CHrBasicLayer::~CHrBasicLayer()
 bool HrCCBase::CHrBasicLayer::init()
 {
 	Layer::init();
+
+	return true;
 }
 
 

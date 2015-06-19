@@ -8,15 +8,17 @@
 #include <string>
 #include "../../HrCommon/HrCCBase/HrBasicType.h"
 
+#define LOAD_PLIST_NUM_PER_FRAME 5
+
 namespace HrCCBase
 {
 	class IAssetScanMode;
 	class IAssetLoadEvent;
-	class CHrAssetResourceLoad : public IAssetLoad
+	class CHrAssetPlistLoad : public IAssetLoad
 	{
 	public:
-		CHrAssetResourceLoad();
-		~CHrAssetResourceLoad();
+		CHrAssetPlistLoad();
+		~CHrAssetPlistLoad();
 
 	public:
 		virtual void InitAssetLoad(IAssetScanMode* assetScanMode, IAssetLoadEvent* assetLoadEvent) override;
@@ -25,12 +27,7 @@ namespace HrCCBase
 
 		void DemandAssetPaths(std::unordered_map<std::string, std::string>& mapAssetPath);
 	private:
-		void LoadResourceCallBack(cocos2d::Texture2D* texture);
-	public:
-		//待加载资源总数
-		uint32 m_nTotalNum;
-		//当前资源加载数量
-		uint32 m_nCurrentNum;
+		void LoadResourceCallBack();
 	private:
 		IAssetScanMode*  m_pAssetScanMode;
 		IAssetLoadEvent* m_pAssetLoadEvent;
@@ -38,7 +35,13 @@ namespace HrCCBase
 		std::unordered_map<std::string, std::string> m_mapAssetPaths;
 		std::unordered_map<std::string, std::string>::iterator m_iteCurrentPos;
 
-
+		std::unordered_map<std::string, std::string> m_mapPlistPaths;
+		std::unordered_map<std::string, std::string>::iterator m_iteCurPlistPos;
+		
+		//待加载资源总数
+		uint32 m_nTotalNum;
+		//当前资源加载数量
+		uint32 m_nCurrentNum;
 	};
 }
 

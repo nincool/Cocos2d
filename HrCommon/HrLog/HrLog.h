@@ -2,6 +2,7 @@
 #define _HR_LOG_H_
 
 #include <vector>
+#include <string>
 
 #define _HLOG_CONSOLE		0x01
 #define _HLOG_FILE			0x02
@@ -40,15 +41,21 @@ public:
 	~CHrLog(void);
 
 public:
-	typedef struct HrLogConf
+	struct HrLogConf
 	{
 		unsigned int		nFileFlag;
 		unsigned int		nLevelFlag;
 		unsigned int		nFormatFlag;
 		std::string         strLogFileName;
+		//void Copy(HrLogConf& conf)
+		//{
+		//	nFileFlag = conf.nFileFlag;
+		//	nLevelFlag = conf.nLevelFlag;
+		//	nFormatFlag = conf.nFormatFlag;
+		//	strLogFileName = conf.strLogFileName;
+		//}
 	};
 
-	static std::streambuf* pBuf;
 public:
 	static CHrLog&		Instance();
 public:
@@ -85,9 +92,7 @@ private:
 	std::string         m_strLogFullPath;
 
 	
-#define HLog(level, model, content, ...)			\
-	std::string strLogContent = StringUtils::format(content, ##__VA_ARGS__); \
-	CHrLog::Instance().Log(level, model, strLogContent.c_str());
+
 	
 };
 

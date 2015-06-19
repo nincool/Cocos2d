@@ -1,4 +1,4 @@
-#include "HrAssetResourceLoad.h"
+#include "HrAssetPlistLoad.h"
 #include "IAssetLoadEvent.h"
 #include "IAssetScanMode.h"
 
@@ -6,7 +6,7 @@ using namespace HrCCBase;
 using namespace std;
 USING_NS_CC;
 
-CHrAssetResourceLoad::CHrAssetResourceLoad()
+CHrAssetPlistLoad::CHrAssetPlistLoad()
 {
 	m_pAssetScanMode = nullptr;
 	m_pAssetLoadEvent = nullptr;
@@ -15,11 +15,11 @@ CHrAssetResourceLoad::CHrAssetResourceLoad()
 	m_nCurrentNum = 0;
 }
 
-CHrAssetResourceLoad::~CHrAssetResourceLoad()
+CHrAssetPlistLoad::~CHrAssetPlistLoad()
 {
 }
 
-void HrCCBase::CHrAssetResourceLoad::InitAssetLoad(IAssetScanMode* assetScanMode, IAssetLoadEvent* assetLoadEvent)
+void HrCCBase::CHrAssetPlistLoad::InitAssetLoad(IAssetScanMode* assetScanMode, IAssetLoadEvent* assetLoadEvent)
 {
 	m_pAssetScanMode = assetScanMode;
 	m_pAssetLoadEvent = assetLoadEvent;
@@ -33,26 +33,33 @@ void HrCCBase::CHrAssetResourceLoad::InitAssetLoad(IAssetScanMode* assetScanMode
 	m_nCurrentNum = 0;
 }
 
-int CHrAssetResourceLoad::GetTotalAssetNum()
+int CHrAssetPlistLoad::GetTotalAssetNum()
 {
+	if (m_nTotalNum == 0)
+	{
+		return 0;
+	}
+	float fLoadFrameNum = (float)m_nTotalNum / LOAD_PLIST_NUM_PER_FRAME;
+	
+	uint32 nLoadFrameNum = fLoadFrameNum;
+	m_nTotalNum = nLoadFrameNum + (m_nTotalNum > nLoadFrameNum * LOAD_PLIST_NUM_PER_FRAME ? 1 : 0);
+	
 	return m_nTotalNum;
 }
 
-void CHrAssetResourceLoad::DemandAssetPaths(std::unordered_map<std::string, std::string>& mapAssetPath)
+void CHrAssetPlistLoad::DemandAssetPaths(std::unordered_map<std::string, std::string>& mapAssetPath)
 {
 	mapAssetPath.swap(m_mapAssetPaths);
 }
 
-void CHrAssetResourceLoad::LoadOneResource()
+void CHrAssetPlistLoad::LoadOneResource()
 {
-	//如果没有资源加载，那么直接结束
 	if (m_nTotalNum == 0)
 	{
 		m_pAssetLoadEvent->LoadAssetFinal();
 	}
 
-	//这里可以做一个阶梯优化
-	for (uint i = 0; i < 3; ++i)
+	for (int i = 0; i < LOAD_PLIST_NUM_PER_FRAME; ++i)
 	{
 		if (m_iteCurrentPos != m_mapAssetPaths.end())
 		{
@@ -60,15 +67,15 @@ void CHrAssetResourceLoad::LoadOneResource()
 			++m_iteCurrentPos;
 
 			CCLOG("Load One Resource: %s", strPath.c_str());
-			Director::getInstance()->getTextureCache()->addImageAsync(strPath, CC_CALLBACK_1(CHrAssetResourceLoad::LoadResourceCallBack, this));
+			SpriteFrameCache::getInstance()->addSpriteFramesWithFile(strPath);
 		}
 	}
+	LoadResourceCallBack();
 }
 
-void HrCCBase::CHrAssetResourceLoad::LoadResourceCallBack(Texture2D* texture)
+void HrCCBase::CHrAssetPlistLoad::LoadResourceCallBack()
 {
-	CCASSERT(texture != nullptr, "loaded Texture is null");
-	CCLOG("Load Resource CallBack!!! Load Num:%d TotalNum:%d All Num:%d", m_nCurrentNum, m_nTotalNum, m_mapAssetPaths.size());
+	CCLOG("Load Resource CallBack!!! Load Num:%d All Num:%d", m_nCurrentNum, m_mapAssetPaths.size());
 
 	++m_nCurrentNum;
 	m_pAssetLoadEvent->SetCurrentProcess(m_nTotalNum, m_nCurrentNum);

@@ -7,20 +7,18 @@
 
 namespace HrCCBase
 {
-	class CHrAssetScanJsonMode : public IAssetScaneMode
+	class CHrAssetScanJsonMode : public IAssetScanMode
 	{
 	public:
 		CHrAssetScanJsonMode();
-		~CHrAssetScanJsonMode();
+		virtual ~CHrAssetScanJsonMode();
 
-		void Init(std::string& strJsonFilePath);
+		virtual void Init(std::string& strJsonFilePath) override;
 	public:
 
 		virtual void ScanningAssert() override;
 
-		virtual bool IsFinished() override;
-
-		virtual const std::unordered_map<std::string, std::string>& GetAssertPath() override;
+		virtual void GetAssertPath(std::unordered_map<std::string, std::string>& mapPath) override;
 	private:
 		std::string m_strJsonFilePath;
 		std::unordered_map<std::string, std::string> m_mapAssetPaths;

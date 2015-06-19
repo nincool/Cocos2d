@@ -2,7 +2,7 @@
 #include "IAssetScanMode.h"
 #include "IAssetLoadEvent.h"
 #include "cocos2d.h"
-#include "HrMacros.h"
+#include "../../HrCommon/HrMacros.h"
 #include "json/document.h"
 
 using namespace HrCCBase;
@@ -21,7 +21,7 @@ CHrAssetScanJsonMode::~CHrAssetScanJsonMode()
 void HrCCBase::CHrAssetScanJsonMode::Init(std::string& strJsonFilePath)
 {
 	m_strJsonFilePath = FileUtils::getInstance()->fullPathForFilename(strJsonFilePath);
-	HRLOG("AssetScanJsonMode FilePath: %s", m_strJsonFilePath.c_str());
+	HRLOG(_HDEBUG, "HRESOURCE", "AssetScanJsonMode FilePath: %s", m_strJsonFilePath.c_str());
 }
 
 void HrCCBase::CHrAssetScanJsonMode::ScanningAssert()
@@ -56,12 +56,7 @@ void HrCCBase::CHrAssetScanJsonMode::ScanningAssert()
 	}
 }
 
-bool HrCCBase::CHrAssetScanJsonMode::IsFinished()
+void CHrAssetScanJsonMode::GetAssertPath(std::unordered_map<std::string, std::string>& mapPath)
 {
-	return false;
-}
-
-const std::unordered_map<std::string, std::string>& HrCCBase::CHrAssetScanJsonMode::GetAssertPath()
-{
-	return m_mapAssetPaths;
+	mapPath = m_mapAssetPaths;
 }

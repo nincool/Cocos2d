@@ -6,18 +6,19 @@ namespace HrCCBase
 	class IAssetLoadEvent
 	{
 	public:
+		IAssetLoadEvent(){};
 		virtual ~IAssetLoadEvent(){};
 		
 	public:
 		/**
 		 *	@Comment: 当前进度回调 [5/25/2015 By Hr]
 		*/
-		virtual void SetCurrentProcess(int nTotalNum, int nCurrentNum);
+		virtual void SetCurrentProcess(int nTotalNum, int nCurrentNum) = 0;
 
 		/**
 		 *	@Comment: 资源加载完成回调 [5/25/2015 By Hr]
 		*/
-		virtual void LoadAssetFinal();
+		virtual void LoadAssetFinal() = 0;
 	};
 }
 
