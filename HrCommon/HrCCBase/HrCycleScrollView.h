@@ -32,7 +32,8 @@ namespace HrFish
 		virtual void UpdateWithIndex(unsigned int index) = 0;
 		virtual Size GetCellSize() = 0;
 		unsigned int GetIndex(){ return m_nIndex; }
-
+		virtual void SetContentScale(float fScale) = 0;
+		virtual void SetContentColor(Color3B color) = 0;
 	protected:
 		unsigned int m_nIndex;
 	};
@@ -82,6 +83,7 @@ namespace HrFish
 		we should adjust the backgroundNode's position so that the view will cyclely move.
 		*/
 		void adjustBackgroundNode();
+		virtual void ScrollViewScrolling();
 
 		/*
 		The similar functions with the CCScrollView

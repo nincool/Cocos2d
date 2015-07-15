@@ -62,8 +62,11 @@ bool HrFish::CHrCycleScrollView::InitWithViewSize(std::vector<Node*>& background
 		{
 			_container = CCLayer::create();
 			this->_container->addChild(m_backgroundNodeLeft);
+			m_backgroundNodeLeft->setTag(0);
 			this->_container->addChild(m_backgroundNodeMiddle);
+			m_backgroundNodeMiddle->setTag(1);
 			this->_container->addChild(m_backgroundNodeRight);
+			m_backgroundNodeRight->setTag(2);
 		}
 		m_viewSize = viewSize;
 		
@@ -86,9 +89,9 @@ bool HrFish::CHrCycleScrollView::InitWithViewSize(std::vector<Node*>& background
 			m_backgroundNodeRight->addChild(pCycleCellRight);
 			if (direction == CycleDirectionHorizontal)
 			{
-				pCycleCellLeft->setPosition(Vec2(pCycleCellLeft->GetCellSize().width *i, 0));
-				pCycleCellMid->setPosition(Vec2(pCycleCellMid->GetCellSize().width *i, 0));
-				pCycleCellRight->setPosition(Vec2(pCycleCellRight->GetCellSize().width *i, 0));
+				pCycleCellLeft->setPosition(Vec2(pCycleCellLeft->GetCellSize().width *i + pCycleCellLeft->GetCellSize().width/2, 0));
+				pCycleCellMid->setPosition(Vec2(pCycleCellMid->GetCellSize().width *i + pCycleCellMid->GetCellSize().width / 2, 0));
+				pCycleCellRight->setPosition(Vec2(pCycleCellRight->GetCellSize().width *i + pCycleCellRight->GetCellSize().width / 2, 0));
 			}
 			else
 			{
@@ -204,22 +207,18 @@ void HrFish::CHrCycleScrollView::scrollViewDidScroll(ScrollView* view)
 		if (m_isTouchDirection)
 		{
 			float fGap = m_nowPoint.x - m_lastPoint.x;
-			CCLOG("GAP!!!!!!!!!!!!!!! %f", fGap);
 			if (fGap >= 0.00001)
 			{
 				m_moving = Right;
 				m_lastPoint = m_nowPoint;
-				CCLOG("Set Move Right!!!!!! %f %f", m_nowPoint.x, m_lastPoint.x);
 			}
 			else if (fGap <= -0.00001)
 			{
 				m_moving = Left;
 				m_lastPoint = m_nowPoint;
-				CCLOG("Set Move Left!!!!!! %f %f", m_nowPoint.x, m_lastPoint.x);
 			}
 			else
 			{
-				CCLOG("Dir  change not");
 			}
 		}
 		m_nowPositionNum = _container->getPositionX() / m_backgroundNodeSize.width;
@@ -247,6 +246,7 @@ void HrFish::CHrCycleScrollView::scrollViewDidScroll(ScrollView* view)
 	}
 
 	adjustBackgroundNode();
+	ScrollViewScrolling();
 }
 
 void HrFish::CHrCycleScrollView::scrollViewDidZoom(ScrollView* view)
@@ -298,8 +298,6 @@ void HrFish::CHrCycleScrollView::adjustBackgroundNode()
 				m_backgroundNodeLeft = m_backgroundNodeMiddle;
 				m_backgroundNodeMiddle = m_backgroundNodeRight;
 				m_backgroundNodeRight = temp;
-				//CCLOG("Change Left!");
-				//updateCycleCell();
 				m_lastNegtiveDone = false;
 			}
 		}
@@ -349,6 +347,11 @@ void HrFish::CHrCycleScrollView::adjustBackgroundNode()
 			}
 		}
 	}
+}
+
+void HrFish::CHrCycleScrollView::ScrollViewScrolling()
+{
+
 }
 
 void HrFish::CHrCycleScrollView::deaccelerateScrolling(float dt)
@@ -402,8 +405,17 @@ void HrFish::CHrCycleScrollView::relocateContainer()
 	{
 		m_nowPositionNum = endPos.y / m_backgroundNodeSize.height;
 	}
+	//CCLOG("1-1:%f %f", m_backgroundNodeLeft->getPositionX(), m_backgroundNodeLeft->getPositionY());
+	//CCLOG("2-1:%f %f", m_backgroundNodeMiddle->getPositionX(), m_backgroundNodeMiddle->getPositionY());
+	//CCLOG("3-1:%f %f", m_backgroundNodeRight->getPositionX(), m_backgroundNodeRight->getPositionY());
+	//CCLOG("Contain-1: %f %f", _container->getPositionX(), _container->getPositionY());
 	this->setContentOffset(endPos);
-	adjustBackgroundNode();  
+	//adjustBackgroundNode();  
+	//CCLOG("1-2:%f %f", m_backgroundNodeLeft->getPositionX(), m_backgroundNodeLeft->getPositionY());
+	//CCLOG("2-2:%f %f", m_backgroundNodeMiddle->getPositionX(), m_backgroundNodeMiddle->getPositionY());
+	//CCLOG("3-2:%f %f", m_backgroundNodeRight->getPositionX(), m_backgroundNodeRight->getPositionY());
+	//CCLOG("Contain-2: %f %f", _container->getPositionX(), _container->getPositionY());
+	//CCLOG("1:(%f %f) 2:(%f %f) 3:(%f %f)", m_backgroundNodeLeft->getPositionX(), m_backgroundNodeLeft->->getPositionY(), m_backgroundNodeMiddle->getPositionX(), m_backgroundNodeMiddle->getPositionY(), m_backgroundNodeRight->getPositionX(), m_backgroundNodeRight->getPositionY());
 }
 
 Point HrFish::CHrCycleScrollView::findEndPoint()
@@ -414,8 +426,17 @@ Point HrFish::CHrCycleScrollView::findEndPoint()
 	m_lastPositionNum = 0;
 	if (m_direction == CycleDirectionHorizontal)
 	{
-		int nCountNum = endPos.x / m_backgroundNodeSize.width;
-		float fPosX = endPos.x - m_backgroundNodeSize.width * nCountNum;
+		float fPosX = 0;
+		if (endPos.x >= 0)
+		{
+			int nCountNum = endPos.x / m_backgroundNodeSize.width;
+			fPosX = endPos.x - m_backgroundNodeSize.width * nCountNum;
+		}
+		else
+		{
+			int nCountNum = -endPos.x / m_backgroundNodeSize.width;
+			fPosX = endPos.x + m_backgroundNodeSize.width * nCountNum;
+		}
 		
 		float fPerContainerWidth = m_backgroundNodeSize.width;
 		m_backgroundNodeLeft->setPosition(Vec2(-fPerContainerWidth, 0.0f));
@@ -426,8 +447,17 @@ Point HrFish::CHrCycleScrollView::findEndPoint()
 	}
 	else
 	{
-		int nCountNum = endPos.y / m_backgroundNodeSize.height;
-		float fPosY = endPos.y - m_backgroundNodeSize.height * nCountNum;
+		float fPosY = 0;
+		if (fPosY >= 0)
+		{
+			int nCountNum = endPos.y / m_backgroundNodeSize.height;
+			fPosY = endPos.y - m_backgroundNodeSize.height * nCountNum;
+		}
+		else
+		{
+			int nCount = -endPos.y / m_backgroundNodeSize.height;
+			fPosY = endPos.y + m_backgroundNodeSize.height * nCount;
+		}
 		
 		float fPerContainerHeight = m_backgroundNodeSize.height;
 		m_backgroundNodeLeft->setPosition(Vec2(0.0f, -fPerContainerHeight));
